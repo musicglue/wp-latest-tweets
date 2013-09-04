@@ -4,7 +4,7 @@ Donate link: http://timwhitlock.info/donate-to-a-project/
 Tags: twitter, tweets, oauth, api, rest, api, widget, sidebar
 Requires at least: 3.5.1
 Tested up to: 3.5.1
-Stable tag: 1.0.6
+Stable tag: 1.0.13
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -17,11 +17,11 @@ Connect your Twitter account to this plugin and the widget will display your lat
 This plugin is compatible with the new **Twitter API 1.1** and provides full **OAuth** authentication via the Wordpress admin area.
  
 
-Built by [timwhitlock](https://twitter.com/timwhitlock)
+Built by <a href="//twitter.com/timwhitlock">@timwhitlock</a> / <a rel="author" href="https://plus.google.com/106703751121449519322">Tim Whitlock</a>
 
 The underlying Twitter API library is [available on Github](https://github.com/timwhitlock/wp-twitter-api)
 
-See also [Latest Vines](http://wordpress.org/extend/plugins/latest-vines-widget/)
+Also by this author: [Loco Translate](http://wordpress.org/support/plugin/loco-translate)
 
 
 == Installation ==
@@ -51,7 +51,7 @@ See the 'Other Notes' tab for theming information.
 
 = Why do I have to register my own Twitter app? =
 
-Because I'm proving code, not a service. If I set up a Twitter app for this plugin I'd be responsible for every person who uses it. 
+Because I'm providing code, not a service. If I set up a Twitter app for this plugin I'd be responsible for every person who uses it. 
 If Twitter closed my account or revoked my keys every instance of this plugin would break. Twitter also place limits on the number of users that can connect to a single app.
 
 = How I do know what my OAuth settings are? =
@@ -68,8 +68,41 @@ You can disable SSL verification of twitter.com by adding this to your theme fun
 `add_filter('https_ssl_verify', '__return_false');`  
 Do so at your own risk.
 
+== Screenshots ==
+
+1. Widget screen shows feed options
+2. Admin screen shows Twitter connect button and OAuth settings
 
 == Changelog ==
+
+= 1.0.13 =
+* Added Russian translations
+* Fixed E_STRICT warning
+* Passing more arguments to filters including profile data
+
+= 1.0.12 =
+* Critical bug fix affecting some older versions of PHP
+
+= 1.0.11 =
+* Better fulfillment of tweet count when skipping retwteets and replies
+* Manual RTs now excluded when "Show Retweets" is disabled
+* Caching applies to rendered tweets instead of raw API data
+* Updated some German translations
+
+= 1.0.10 =
+* Added shortcode support
+* Fixed bug rendering url fragments as hashtags
+
+= 1.0.9 =
+* Fixed pluralisation bug in date printing
+* Now expanding t.co links unless render_text filter is used
+
+= 1.0.8 =
+* Added `latest_tweets_cache_seconds` filter
+* Added German translations
+
+= 1.0.7 =
+* Allow library coexist across plugins
 
 = 1.0.6 =
 * Enabled translations and added pt_BR
@@ -91,6 +124,23 @@ Do so at your own risk.
 
 = 1.0.1 =
 * First public release
+
+== Upgrade Notice ==
+
+= 1.0.13 =
+* Bug fixes and improvements available.
+
+
+== Shortcodes ==
+
+You can embed tweets in the body of your posts using a Wordpress the shortcode `[tweets]`.
+
+To specify a different user's timeline add the `user` attribute.  
+To override the default number of 5 tweets add the `max` attribute, e.g: 
+
+    [tweets max=10 user=timwhitlock]
+
+
 
 == Theming ==
 
@@ -149,13 +199,35 @@ Here's an **example** of using some of the above in your theme's functions.php f
         return $text; // <- will use default
     }, 10 , 1 );
     
-    add_filter('latest_tweets_render_tweet', function( $html, $date, $link ){
-        return '<p class="my-tweet">'.$html.'</p><p class="my-date"><a href="'.$link.'">'.$date.'</a></p>';
-    }, 10, 3 );
+    add_filter('latest_tweets_render_tweet', function( $html, $date, $link, array $tweet ){
+        $pic = $tweet['user']['profile_image_url_https'];
+        return '<p class="my-tweet"><img src="'.$pic.'"/>'.$html.'</p><p class="my-date"><a href="'.$link.'">'.$date.'</a></p>';
+    }, 10, 4 );
     
     add_filter('latest_tweets_render_after', function(){
         return '<footer><a href="https://twitter.com/me">More from me</a></footer>';
     }, 10, 0 );
+
+== Caching ==
+
+Responses from the Twitter API are cached for 5 minutes by default. This means your new Tweets will not appear on your site in real time.
+
+This is deliberate not only for performance, but also to avoid Twitter's strict rate limits of 15 requests every 15 minutes. 
+
+You can override the 300 second cache by using the `latest_tweets_cache_seconds` filter in your theme as follows:
+
+This would extend the cache to 1 minute, which is the lowest value you should consider using on a live site:
+
+    add_filter('latest_tweets_cache_seconds', function( $ttl ){
+        return 60;
+    }, 10, 1 );
+
+This would disable the cache (not recommended other than for debugging):
+
+    add_filter('latest_tweets_cache_seconds', function( $ttl ){
+        return 0;
+    }, 10, 1 );
+
 
 
 == Credits ==
