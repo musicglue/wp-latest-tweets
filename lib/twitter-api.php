@@ -56,7 +56,7 @@ function twitter_api_enable_cache( $ttl ){
  * Disable caching of Twitter API responses
  * @return TwitterApiClient
  */
-function twitter_api_disable_cache( $ttl ){
+function twitter_api_disable_cache(){
     $Client = twitter_api_client();
     return $Client->disable_cache();
 }
@@ -147,9 +147,15 @@ if( is_admin() ){
 function _twitter_api_init_l10n(){
     static $map = array (
         'pt_BR' => 'pt_BR',
+        'de'    => 'de_DE', 'de_DE' => 'de_DE',
+        'ru'    => 'ru_RU', 'ru_RU' => 'ru_RU',
+        'nl'    => 'nl_NL', 'nl_NL' => 'nl_NL',
     );
-    if( preg_match('/^([a-z]{2})[\-_\s]([a-z]{2})$/i', get_locale(), $r ) ){
-        $locale = strtolower($r[1]).'_'.strtoupper($r[2]);
+    if( preg_match('/^([a-z]{2})(?:[\-_\s]([a-z]{2}))?$/i', get_locale(), $r ) ){
+        $locale = strtolower($r[1]);
+        if( isset($r[2]) ){
+            $locale .= '_'.strtoupper($r[2]);
+        }
         if( isset($map[$locale]) ){
             $locale = $map[$locale];
             $mofile = twitter_api_basedir().'/lang/twitter-api-'.$locale.'.mo';
